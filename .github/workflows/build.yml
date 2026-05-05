@@ -1,43 +1,38 @@
 name: Build Windows Executable
 
-# Controla cuándo se ejecutará el flujo de trabajo
 on:
-  # Se activará cada vez que hagas 'push' a la rama 'main' (o 'master')
   push:
     branches: [ "main", "master" ]
-  # También te permite ejecutarlo manualmente desde la pestaña de "Actions"
   workflow_dispatch:
 
 jobs:
   build:
-    # Especifica que use el entorno más reciente de Windows
-    runs-on: windows-latest
+    # 🔧 CAMBIO 1: Usa windows-2025 (nombre correcto actualizado)
+    runs-on: windows-2025
+    
+    # 🔧 CAMBIO 2: Opcional - fuerza Node.js 24 si quieres adelantarte
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     
     steps:
-    # 1. Clona el código de tu repositorio
     - name: Checkout code
       uses: actions/checkout@v4
-
-    # 2. Configura la versión de Python que necesitas
+      
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.x' # Cambia '3.x' por '3.10', '3.11', etc. si es necesario
-
-    # 3. Instala las dependencias de tu proyecto desde requirements.txt
+        python-version: '3.x'
+        
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         if (Test-Path requirements.txt) { pip install -r requirements.txt }
-
-    # 4. Ejecuta PyInstaller para crear el .exe
+        
     - name: Build with PyInstaller
       run: |
         pip install pyinstaller
-        # Comando IMPORTANTE: Cambia 'tu_script_principal.py' por el nombre de tu archivo
         pyinstaller --onefile --console --name "MiApp" licitaciones.py
-
-    # 5. Sube el .exe generado como un artefacto descargable
+        
     - name: Upload EXE artifact
       uses: actions/upload-artifact@v4
       with:
