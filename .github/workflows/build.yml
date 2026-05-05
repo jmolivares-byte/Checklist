@@ -1,28 +1,45 @@
-name: Build EXE
+name: Build Windows Executable
 
-on: [push]
+# Controla cuándo se ejecutará el flujo de trabajo
+on:
+  # Se activará cada vez que hagas 'push' a la rama 'main' (o 'master')
+  push:
+    branches: [ "main", "master" ]
+  # También te permite ejecutarlo manualmente desde la pestaña de "Actions"
+  workflow_dispatch:
 
 jobs:
   build:
+    # Especifica que use el entorno más reciente de Windows
     runs-on: windows-latest
-
+    
     steps:
-    - name: Descargar código
-      uses: actions/checkout@v3
+    # 1. Clona el código de tu repositorio
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-    - name: Instalar Python
-      uses: actions/setup-python@v4
+    # 2. Configura la versión de Python que necesitas
+    - name: Set up Python
+      uses: actions/setup-python@v5
       with:
-        python-version: '3.10'
+        python-version: '3.x' # Cambia '3.x' por '3.10', '3.11', etc. si es necesario
 
-    - name: Instalar PyInstaller
-      run: pip install pyinstaller
+    # 3. Instala las dependencias de tu proyecto desde requirements.txt
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        if (Test-Path requirements.txt) { pip install -r requirements.txt }
 
-    - name: Crear EXE
-      run: pyinstaller --onefile licitaciones.py
+    # 4. Ejecuta PyInstaller para crear el .exe
+    - name: Build with PyInstaller
+      run: |
+        pip install pyinstaller
+        # Comando IMPORTANTE: Cambia 'tu_script_principal.py' por el nombre de tu archivo
+        pyinstaller --onefile --console --name "MiApp" licitaciones.py
 
-    - name: Subir EXE
-      uses: actions/upload-artifact@v3
+    # 5. Sube el .exe generado como un artefacto descargable
+    - name: Upload EXE artifact
+      uses: actions/upload-artifact@v4
       with:
-        name: ejecutable
+        name: Windows-Executable
         path: dist/*.exe
