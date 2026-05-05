@@ -1,0 +1,28 @@
+name: Build EXE
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Descargar código
+      uses: actions/checkout@v3
+
+    - name: Instalar Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Instalar PyInstaller
+      run: pip install pyinstaller
+
+    - name: Crear EXE
+      run: pyinstaller --onefile licitaciones.py
+
+    - name: Subir EXE
+      uses: actions/upload-artifact@v3
+      with:
+        name: ejecutable
+        path: dist/*.exe
